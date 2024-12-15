@@ -1,118 +1,163 @@
-/**
- * Sample React Native App
- * https://github.com/facebook/react-native
- *
- * @format
- */
+import React, { useEffect } from 'react';
+import { SafeAreaView, StyleSheet } from 'react-native';
+import { NavigationContainer } from '@react-navigation/native';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createStackNavigator } from '@react-navigation/stack';
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+import TrackPlayer, { Capability } from 'react-native-track-player';
+import trackPlayerServices from './service';
+import PlayerScreen from './Screens/MusicPlayer/PlayerPage';
+// Import your screen components
+import Home from './Screens/Home/Home';
+import Search from './Screens/Search/Search';
+import Info from './Screens/Info/Info';
+import Library from './Screens/Library/Library';
+import Login from './Screens/Login/login';
+import Signup from './Screens/Signup/Signup';
+import OtpScreen from './Screens/Otp/Otp';
+import ForgotPasswordScreen from './Screens/Forgot/Forgot';
+import ResetPassword from './Screens/ResetPassword/ResetPassword';
+import SubHome from './Screens/SubHome/SubHome';
+import Album from './Screens/Album/Album';
+import OfflineStream from './Screens/OfflineStream/OfflineStream';
+import NavBar from './Screens/Components/NavBar';
+import IntialScreen from './Screens/InitialScreen/IntialScreen';
+import {BackHandler, Alert } from 'react-native';
 
-import React from 'react';
-import type {PropsWithChildren} from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StatusBar,
-  StyleSheet,
-  Text,
-  useColorScheme,
-  View,
-} from 'react-native';
+// Navigators
+const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
-import {
-  Colors,
-  DebugInstructions,
-  Header,
-  LearnMoreLinks,
-  ReloadInstructions,
-} from 'react-native/Libraries/NewAppScreen';
+// Home Stack
+const HomeStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="homescreen" component={Home} />
+    <Stack.Screen name="subhome" component={SubHome} />
+    <Stack.Screen name="homealbum" component={Album} />
+    <Stack.Screen name="homemusicplayer" component={PlayerScreen} />
+  </Stack.Navigator>
+);
 
-type SectionProps = PropsWithChildren<{
-  title: string;
-}>;
+// Search Stack
+const SearchStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="searchscreen" component={Search} />
+    <Stack.Screen name="searchalbum" component={Album} />
+    <Stack.Screen name="searchmusicplayer" component={PlayerScreen} />
 
-function Section({children, title}: SectionProps): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
+  </Stack.Navigator>
+);
+
+// Library Stack
+const LibraryStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="libraryscreen" component={Library} />
+    <Stack.Screen name="libraryalbum" component={Album} />
+    <Stack.Screen name="librarymusicplayer" component={PlayerScreen} />
+  </Stack.Navigator>
+);
+
+// Info Stack
+const InfoStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="infoscreen" component={Info} />
+    {/* Add more screens if needed */}
+  </Stack.Navigator>
+);
+
+// Login Stack
+const LoginStack = () => (
+  <Stack.Navigator screenOptions={{ headerShown: false }}>
+    <Stack.Screen name="intialscreen" component={IntialScreen} />
+    <Stack.Screen name="loginscreen" component={Login} />
+    <Stack.Screen name="signup" component={Signup} />
+    <Stack.Screen name="forgot" component={ForgotPasswordScreen} />
+    <Stack.Screen name="otp" component={OtpScreen} />
+    <Stack.Screen name="resetpassword" component={ResetPassword} />
+  </Stack.Navigator>
+);
+
+// Main Stack (Tab Navigation)
+const MainStack = () => (
+  <Tab.Navigator
+  screenOptions={{
+    headerShown: false, 
+  }}
+
+    
+  tabBar={(props) => <NavBar {...props} />} // Custom Navbar component
+>
+<Tab.Screen name="login" component={LoginStack} 
+  listeners={({ navigation }) => ({
+    tabPress: (e) => {
+      e.preventDefault();
+      navigation.navigate("login", {
+        screen: "loginscreen",
+      });
+    },
+  })}/>
+  <Tab.Screen name="home" component={HomeStack} options={{ unmountOnBlur: true }} listeners={({ navigation }) => ({
+      tabPress: (e) => {
+        e.preventDefault();
+        navigation.navigate("home", {
+          screen: "homescreen",
+        });
+      },
+    })}/>
+  <Tab.Screen name="search" component={SearchStack} listeners={({ navigation }) => ({
+      tabPress: (e) => {
+        e.preventDefault();
+        navigation.navigate("search", {
+          screen: "searchscreen",
+        });
+      },
+    })}/>
+  <Tab.Screen name="library" component={LibraryStack} 
+  listeners={({ navigation }) => ({
+      tabPress: (e) => {
+        e.preventDefault();
+        navigation.navigate("library", {
+          screen: "libraryscreen",
+        });
+      },
+    })} />
+  <Tab.Screen name="info" component={InfoStack}
+  listeners={({ navigation }) => ({
+    tabPress: (e) => {
+      e.preventDefault();
+      navigation.navigate("info", {
+        screen: "infoscreen",
+      });
+    },
+  })} />
+
+</Tab.Navigator>
+);
+
+// App Component
+export default function App() {
+  useEffect(() => {
+    const backAction = () => {
+      Alert.alert("Hold on!", "Are you sure you want to go back?", [
+        { text: "Cancel", onPress: () => null, style: "cancel" },
+        { text: "YES", onPress: () => BackHandler.exitApp() },
+      ]);
+      return true; // Prevent default back action
+    };
+
+    const backHandler = BackHandler.addEventListener(
+      "hardwareBackPress",
+      backAction
+    );
+
+    return () => backHandler.remove(); // Cleanup
+  }, []);
   return (
-    <View style={styles.sectionContainer}>
-      <Text
-        style={[
-          styles.sectionTitle,
-          {
-            color: isDarkMode ? Colors.white : Colors.black,
-          },
-        ]}>
-        {title}
-      </Text>
-      <Text
-        style={[
-          styles.sectionDescription,
-          {
-            color: isDarkMode ? Colors.light : Colors.dark,
-          },
-        ]}>
-        {children}
-      </Text>
-    </View>
+    <SafeAreaProvider>
+      <NavigationContainer>
+        <MainStack />
+      </NavigationContainer>
+    </SafeAreaProvider>
   );
 }
-
-function App(): React.JSX.Element {
-  const isDarkMode = useColorScheme() === 'dark';
-
-  const backgroundStyle = {
-    backgroundColor: isDarkMode ? Colors.darker : Colors.lighter,
-  };
-
-  return (
-    <SafeAreaView style={backgroundStyle}>
-      <StatusBar
-        barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-        backgroundColor={backgroundStyle.backgroundColor}
-      />
-      <ScrollView
-        contentInsetAdjustmentBehavior="automatic"
-        style={backgroundStyle}>
-        <Header />
-        <View
-          style={{
-            backgroundColor: isDarkMode ? Colors.black : Colors.white,
-          }}>
-          <Section title="Step One">
-            Edit <Text style={styles.highlight}>App.tsx</Text> to change this
-            screen and then come back to see your edits.
-          </Section>
-          <Section title="See Your Changes">
-            <ReloadInstructions />
-          </Section>
-          <Section title="Debug">
-            <DebugInstructions />
-          </Section>
-          <Section title="Learn More">
-            Read the docs to discover what to do next:
-          </Section>
-          <LearnMoreLinks />
-        </View>
-      </ScrollView>
-    </SafeAreaView>
-  );
-}
-
-const styles = StyleSheet.create({
-  sectionContainer: {
-    marginTop: 32,
-    paddingHorizontal: 24,
-  },
-  sectionTitle: {
-    fontSize: 24,
-    fontWeight: '600',
-  },
-  sectionDescription: {
-    marginTop: 8,
-    fontSize: 18,
-    fontWeight: '400',
-  },
-  highlight: {
-    fontWeight: '700',
-  },
-});
-
-export default App;
+TrackPlayer.registerPlaybackService(() => trackPlayerServices);

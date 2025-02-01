@@ -9,12 +9,15 @@ interface Song {
   authorName: string;
   albumId: string;
   songImage: string;
+  songUrl:string;
+
 }
 
 interface HorizontalListProps {
   data: Song[];
   cardType:String;
   requestFrom:[string,string];
+  songUrl:string;
 }
 
 const HorizontalList: React.FC<HorizontalListProps> = ({ data,cardType,requestFrom }) => {
@@ -33,6 +36,7 @@ const HorizontalList: React.FC<HorizontalListProps> = ({ data,cardType,requestFr
             songAuthor={item.authorName}
             imageUrl={item.songImage}
             requestFrom={requestFrom}
+            songUrl={item.songUrl}
           />
         )}
         horizontal
@@ -49,6 +53,7 @@ const HorizontalList: React.FC<HorizontalListProps> = ({ data,cardType,requestFr
           imageUrl={item.songImage}
           screen='homemusicplayer'
           stack='home'
+          songUrl={item.songUrl}
         />
         )}
         horizontal

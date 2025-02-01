@@ -3,24 +3,27 @@ import { View, Image, Text, StyleSheet, ImageSourcePropType, TouchableOpacity } 
 import { StackNavigationProp } from '@react-navigation/stack';
 import { RootStackParamList } from '../Album/Album';
 import { useNavigation } from '@react-navigation/native'; // Import the useNavigation hook
-
+import { useDispatch } from 'react-redux';
+import { setSongQueue } from '../Redux/StateSlice';
 interface SongTileProps {
   id: string; // Unique identifier for the song tile
   songName: string; // Name of the song
   songAuthor: string; // Author of the song
   imageUrl: string; // URL of the image
   requestFrom:[string,string];
+  songUrl:string;
 }
 type NavigationProp = StackNavigationProp<RootStackParamList>;
 
-const RecentTile: React.FC<SongTileProps> = ({ id, songName, songAuthor, imageUrl }) => {
+const RecentTile: React.FC<SongTileProps> = ({ id, songName, songAuthor, imageUrl,songUrl }) => {
   const navigation = useNavigation<NavigationProp>(); // Type the navigation hook
-
-  const handleNavigator = ()=>{
-    navigation.navigate('homemusicplayer',{stack:'home'})
+  const dispatch =useDispatch();
+  const handleNavigator = (url)=>{
+    dispatch(setSongQueue(url));
+    navigation.navigate('homemusicplayer',{stack:'home',view:false})
     }
   return (
-    <TouchableOpacity onPress={()=>handleNavigator()}>
+    <TouchableOpacity activeOpacity={0.8} onPress={()=>handleNavigator([{id:id,url:songUrl,title:songName,artist:songAuthor,artwork:imageUrl}])}>
     <View style={styles.container} key={id}>
       <Image source={{ uri: imageUrl }} style={styles.image} />
       <View style={{justifyContent:'flex-start',alignItems:'flex-start'}}>

@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
-import { SafeAreaView, StyleSheet, View, Image,Text,TouchableOpacity, Button, FlatList,ScrollView } from 'react-native';
+import { SafeAreaView, StyleSheet, View, Image,Text,TouchableOpacity, Button, FlatList,ScrollView, Alert, BackHandler } from 'react-native';
 import { increment,decrement, setValue } from '../Redux/StateSlice';
 import { useDispatch, useSelector } from 'react-redux';
 import SongCarousel from '../Components/SongCarousel';
@@ -9,6 +9,7 @@ import { RecentList } from '../Components/DummyDate';
 import { albumList } from '../Components/DummyDate';
 import HorizontalList from '../Components/HorizontalList';
 import HorizontalListAlbum from '../Components/HorizontalListAlbums';
+import { NavigationContainer, useNavigationState } from '@react-navigation/native';
 
 type NavbarProps = {
   navigation: BottomTabNavigationProp<TabParamList>;
@@ -16,11 +17,53 @@ type NavbarProps = {
 
 const Home: React.FC<NavbarProps> = ({ navigation }) => {
   const userId = useSelector((state)=>state.state.userId)
-  console.log(userId,'userId');
+  //console.log(userId,'userId');
   const dispatch = useDispatch();
   const navigateScreen=(screen:string,value:[string,string])=>{
     navigation.navigate(screen, { targetString: value });
   }
+  const routeNames = useNavigationState((state) => state.routeNames); // Get all route names
+  const currentRouteIndex = useNavigationState((state) => state.index); // Get the index of the active route
+  const currentScreen = routeNames[currentRouteIndex]; // Determine the current screen name
+
+  // const handleBackButtonPress = () => {
+  //   console.log(currentScreen, currentRouteIndex);
+
+  //   if (currentScreen === 'homescreen' || currentScreen === 'searchscreen' || currentScreen === 'libraryscreen' || currentScreen === 'infoscreen') {
+  //     Alert.alert(
+  //       'Exit App',
+  //       'Are you sure you want to exit the app?',
+  //       [
+  //         { text: 'Cancel', style: 'cancel' },
+  //         { text: 'OK', onPress: () => BackHandler.exitApp() },
+  //       ],
+  //       { cancelable: true }
+  //     );
+  //     return true; // Prevent default back behavior
+  //   }
+
+  //   switch(currentScreen){
+  //     case  'homemusicplayer':
+  //       dispatch(setValue(1));
+  //       break;
+  //     case  'searchmusicplayer':
+  //       dispatch(setValue(2));
+  //       break;
+  //     case  'librarymusicplayer':
+  //       dispatch(setValue(3));
+  //       break;
+  //     default:
+  //       break;
+  // };}
+
+  // useEffect(() => {
+  //   BackHandler.addEventListener('hardwareBackPress', handleBackButtonPress);
+
+  //   return () => {
+  //      BackHandler.removeEventListener('hardwareBackPress', handleBackButtonPress);
+  //   };
+  // }, [currentScreen, currentRouteIndex]); 
+
     return (
     <SafeAreaView style={styles.mainContainer}>
       <View style={styles.subContainer}>

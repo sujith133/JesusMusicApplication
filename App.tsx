@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import { SafeAreaView, StyleSheet } from 'react-native';
-import { NavigationContainer } from '@react-navigation/native';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import { createStackNavigator } from '@react-navigation/stack';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import TrackPlayer, { Capability } from 'react-native-track-player';
 import trackPlayerServices from './service';
 import PlayerScreen from './Screens/MusicPlayer/PlayerPage';
+import { NavigationContainer, useNavigationState } from '@react-navigation/native';
 // Import your screen components
 import Home from './Screens/Home/Home';
 import Search from './Screens/Search/Search';
@@ -23,6 +23,11 @@ import OfflineStream from './Screens/OfflineStream/OfflineStream';
 import NavBar from './Screens/Components/NavBar';
 import IntialScreen from './Screens/InitialScreen/IntialScreen';
 import {BackHandler, Alert } from 'react-native';
+import { setupPlayer } from './Screens/Components/setupPlayer';
+import { navigationRef } from './NavigationService'; // Import navigationRef
+import { useRef, useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { setValue } from './Screens/Redux/StateSlice';
 
 // Navigators
 const Tab = createBottomTabNavigator();
@@ -135,26 +140,66 @@ const MainStack = () => (
 );
 
 // App Component
-export default function App() {
+export default function App({}) {
+  const [currentScreen, setCurrentScreen] = useState('');
+  const navigationRef = useRef();
+  const dispatch =useDispatch();
+
   useEffect(() => {
-    const backAction = () => {
-      Alert.alert("Hold on!", "Are you sure you want to go back?", [
-        { text: "Cancel", onPress: () => null, style: "cancel" },
-        { text: "YES", onPress: () => BackHandler.exitApp() },
-      ]);
-      return true; // Prevent default back action
+    const handleBackButtonPress = () => {
+      console.log("Current screen:", currentScreen);
+
+      if (['homescreen', 'searchscreen', 'libraryscreen', 'infoscreen'].includes(currentScreen)) {
+        Alert.alert(
+          'Exit App',
+          'Are you sure you want to exit the app?',
+          [
+            { text: 'Cancel', style: 'cancel' },
+            { text: 'OK', onPress: () => BackHandler.exitApp() },
+          ],
+          { cancelable: true }
+        );
+       return true; // Prevent default back behavior
+      // }
+      // else{
+      //   navigation.goBack();
+      }
+
+      // Additional logic for specific screens
+
+      return false; // Allow default back behavior
     };
 
-    const backHandler = BackHandler.addEventListener(
-      "hardwareBackPress",
-      backAction
-    );
+    BackHandler.addEventListener('hardwareBackPress', handleBackButtonPress);
 
-    return () => backHandler.remove(); // Cleanup
-  }, []);
+    return () => {
+      BackHandler.removeEventListener('hardwareBackPress', handleBackButtonPress);
+    };
+  }, [currentScreen]); // Add currentScreen as a dependency
+
+
+
+  useEffect(() => {
+    const initializePlayer = async () => {
+      await setupPlayer();
+    };
+
+    initializePlayer();
+
+    return () => {
+      TrackPlayer.reset();
+    };
+  }, []); 
+
   return (
     <SafeAreaProvider>
-      <NavigationContainer>
+      <NavigationContainer
+      ref={navigationRef}
+      onStateChange={() => {
+        const currentRoute = navigationRef.current?.getCurrentRoute();
+        setCurrentScreen(currentRoute?.name || null);
+      }}
+      >
         <MainStack />
       </NavigationContainer>
     </SafeAreaProvider>

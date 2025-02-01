@@ -20,12 +20,13 @@ interface Song {
   authorName: string;
   albumId: string;
   songImage: string;
+  songUrl:string;
 }
 
 function SubHome({ route, navigation }): React.JSX.Element {
   const { width } = Dimensions.get('window'); // Get the screen width
   const isTablet = width >= 768; // Consider devices with a width >= 768 as tablets (like iPads)
-  console.log('going back home');
+  ////console.log('going back home');
   const numColumns = isTablet ? 4 : 2; // Set columns based on device type
   const columnWrapperStyle = {
     flex:1,
@@ -53,6 +54,7 @@ function SubHome({ route, navigation }): React.JSX.Element {
     imageUrl={item.songImage}
     screen='homemusicplayer'
     stack='home'
+    songUrl={item.songUrl}
   />
 
 
@@ -78,7 +80,7 @@ function SubHome({ route, navigation }): React.JSX.Element {
         </View>
 
         <View style={styles.contentContainer}>
-          <View style={{flex:0,flexDirection:'row' }}>
+          <View style={{flex:0,flexDirection:'row',alignItems:'center' }}>
             <TouchableOpacity style={{height:36,width:36}} onPress={()=>navigateBack()}>
               <Image style={{ height: 25, width: 14 }} source={require('../assets/backbutton.png')} />
             </TouchableOpacity>
@@ -115,7 +117,7 @@ const styles = StyleSheet.create({
   },
   row: {
     flex:1,
-    justifyContent: 'center', // Ensures spacing between two cards
+    justifyContent: 'space-around', // Ensures spacing between two cards
     marginBottom: 16, // Adds spacing between rows
     width:'100%',
   },

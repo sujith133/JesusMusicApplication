@@ -1,6 +1,8 @@
 import store from './Screens/Redux/Store'; // Import the Redux store
 import { MenuProvider } from 'react-native-popup-menu';
 import {Provider} from 'react-redux'; // Import the Redux Provider
+import TrackPlayer from 'react-native-track-player';
+
 /**
  * @format
  */
@@ -17,5 +19,4 @@ const ReduxApp = () => (
   </Provider>
   </MenuProvider>
 );
-
 AppRegistry.registerComponent(appName, () => ReduxApp);

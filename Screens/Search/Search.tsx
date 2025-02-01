@@ -11,6 +11,7 @@ export interface Song {
   authorName: string;
   albumId: string;
   songImage: string;
+  songUrl:string;
 }
 
 export interface Album {
@@ -50,8 +51,10 @@ function Search(): React.JSX.Element {
       songName={item.songName}
       songAuthor={item.authorName}
       imageUrl={item.songImage}
+      songUrl={item.songUrl}
       screen='searchmusicplayer'
       stack='search'
+
     />
   );
   const renderAlbum = ({ item }: { item: Album }) => (
@@ -73,7 +76,7 @@ function Search(): React.JSX.Element {
         />
         </View>
 
-        <View style={{backgroundColor:'#f5f5f5',flex:1,borderTopRightRadius:20,borderTopLeftRadius:20,padding:20,paddingBottom:90,flexDirection:'column',justifyContent:'flex-start',alignItems:'center'}}>
+        <View style={{backgroundColor:'#f5f5f5',flex:1,borderTopRightRadius:20,borderTopLeftRadius:20,padding:20,paddingBottom:0,flexDirection:'column',justifyContent:'flex-start',alignItems:'center'}}>
 
           <ScrollView showsHorizontalScrollIndicator={false} showsVerticalScrollIndicator={false}>
           <View style={{flexDirection:'row', borderColor:'#257180', marginTop:10, borderWidth:2, width:'100%', borderRadius:12,paddingVertical:5,paddingHorizontal:15,justifyContent:'space-between',alignItems:'center'}}>

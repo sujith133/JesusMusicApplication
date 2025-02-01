@@ -3,21 +3,100 @@ import { SafeAreaView, StyleSheet, View, Image, Text, ScrollView, TouchableOpaci
 import { Menu, MenuTrigger, MenuOptions, MenuOption } from 'react-native-popup-menu';
 import { albumList, songList, podcastList } from '../Components/DummyDate';
 import { Snackbar } from 'react-native-paper';
-
+import { useDispatch } from 'react-redux';
+import { setSongQueue } from '../Redux/StateSlice';
+import { useSelector } from 'react-redux';
+import { selectValue } from '../MusicPlayer/Selector';
 const Album = ({ route, navigation }: any) => {
   const [snackVisible, setSnackVisible] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
   const [newPlaylist, setNewPlaylist] = useState('');
-  const showSnack = () => { setSnackVisible(true) }
-  const hideSnack = () => { setSnackVisible(false) }
-  
+  const showSnack = () => { setSnackVisible(true) };
+  const hideSnack = () => { setSnackVisible(false) };
+  const dispatch =useDispatch();
+    const value = useSelector(selectValue); 
+    const stackSetter =() =>{
+    console.log("value in album",value);
+    switch (value) {
+      case 1:
+        return {screen:'homemusicplayer',stack:'home'};
+      break;
+      case 5:
+        return {screen:'homemusicplayer',stack:'home'};
+      break;
+      case 2:
+        return {screen:'searchmusicplayer',stack:'search'};
+      break;
+      case 3:
+        return {screen:'librarymusicplayer',stack:'library'};
+      break;
+      default:
+        return {screen:'searchmusicplayer',stack:'search'};
+        break;
+    }
+  }
   const { albumId } = route.params;
-  console.log(albumId);
+  //console.log(albumId);
   const AlbumData = albumList.filter((item) => item.id === albumId);
   const PodcastData = podcastList.filter((item) => item.id === albumId);
 
   const songs = AlbumData[0]?.songId || PodcastData[0].songId;
   const SongData = songList.filter((item) => songs.includes(item.id));
+  const TrackData=SongData.map((each)=>{
+    return{
+      id:each.id,url:each.songUrl,title:each.songName,artist:each.authorName,artwork:each.songImage
+    }
+  })
+  //console.log(TrackData);
+  const listRotate = (name) => {
+    // Find the index of the item with songName equal to name
+    const index = TrackData.findIndex(item => item.title === name);
+    if (index === -1) return TrackData; // If not found, return the original list
+  
+    // Rotate the array to bring the found item to the top
+    const rotatedList = [
+      ...TrackData.slice(index),
+      ...TrackData.slice(0, index)
+    ];
+  
+    return rotatedList;
+  };
+
+  const handleSongNavigator=(name)=>{
+    const screenData = stackSetter();
+
+      dispatch(setSongQueue(listRotate(name)));
+    navigation.navigate(screenData.screen,{stack:screenData.stack,view:false})
+    console.log('navigating to:',screenData,value);
+  };
+
+  const handleNavigator =()=>{
+    const screenData = stackSetter();
+    dispatch(setSongQueue(TrackData));
+    navigation.navigate(screenData.screen,{stack:screenData.stack,view:false})
+  };
+  const shuffleList = (TrackData) => {
+    // Clone the TrackData to avoid mutating the original list
+    const shuffledList = [...TrackData];
+  
+    // Fisher-Yates shuffle algorithm
+    for (let i = shuffledList.length - 1; i > 0; i--) {
+      // Generate a random index
+      const randomIndex = Math.floor(Math.random() * (i + 1));
+  
+      // Swap elements at i and randomIndex
+      [shuffledList[i], shuffledList[randomIndex]] = [shuffledList[randomIndex], shuffledList[i]];
+    }
+  
+    return shuffledList;
+  };
+  const handleShuffle =()=>{
+    console.log('hanedle')
+    const screenData = stackSetter();
+      dispatch(setSongQueue(shuffleList(TrackData)));
+    navigation.navigate(screenData.screen,{stack:screenData.stack,view:false})
+
+  };
 
   const navigateBack = () => {
     navigation.goBack();
@@ -69,7 +148,8 @@ const Album = ({ route, navigation }: any) => {
   );
 
   const renderSong = (item: any) => (
-    <TouchableOpacity style={styles.songContainer} key={item.id}>
+    <TouchableOpacity style={styles.songContainer} key={item.id} onPress={()=>handleSongNavigator(item.songName)}>
+      <Image style={{height:50,width:50,borderRadius:6}} source={{ uri: item.songImage}} />
       <View style={styles.songContainer}>
         <View style={styles.songInfo}>
           <Text style={styles.songName}>{item.songName}</Text>
@@ -135,7 +215,7 @@ const Album = ({ route, navigation }: any) => {
           </View>
           <View style={styles.actionsContainer}>
             <View style={styles.row}>
-              <TouchableOpacity>
+              <TouchableOpacity onPress={()=>handleShuffle()}>
                 <Image
                   style={styles.actionIcon1}
                   source={require('../assets/shuffleAlbum.png')}
@@ -148,13 +228,13 @@ const Album = ({ route, navigation }: any) => {
                 />
               </TouchableOpacity>
             </View>
-            <TouchableOpacity onPress={() => showSnack()}>
+            <TouchableOpacity onPress={()=>handleNavigator()}>
               <Image style={styles.playIcon} source={require('../assets/albumplay.png')} />
             </TouchableOpacity>
           </View>
 
           {/* Replacing FlatList with ScrollView */}
-          <ScrollView contentContainerStyle={{ flex:1,paddingBottom: 95 }}>
+          <ScrollView contentContainerStyle={{ flex:1, paddingBottom: 100 }}>
             {SongData.map(renderSong)}
           </ScrollView>
         </ScrollView>
@@ -167,7 +247,7 @@ const Album = ({ route, navigation }: any) => {
           label: 'Undo',
           onPress: () => {
             // Perform an action on Undo
-            console.log('Undo action triggered');
+            //console.log('Undo action triggered');
           },
         }}
       >
@@ -192,16 +272,16 @@ const styles = StyleSheet.create({
   albumAuthor: { fontSize: 20, color: 'gray' },
   actionsContainer: { flexDirection: 'row', justifyContent: 'space-between', alignItems:'center', width: '100%', padding: 10 },
   row: { flexDirection: 'row' },
-  actionIconoption: { height: 22, width: 22, marginRight: 35, transform: 'rotate(90deg)' },
+  actionIconoption: { height: 22, width: 22, transform: 'rotate(90deg)' },
   actionIcon1: { height: 22, width: 22, marginRight: 35 },
   actionIcon2: { height: 25, width: 25, marginRight: 35 },
   actionIcon3: { height: 32, width: 32, marginRight: 35 },
   playIcon: { height: 50, width: 50 },
-  songContainer: { width:"100%",flexDirection: 'row', alignItems: 'center', paddingHorizontal: 10, backgroundColor: '#ffffff', height: 90,borderBottomWidth:1,borderColor:"#ccc" },
+  songContainer: { width:"100%",flexDirection: 'row',justifyContent:'flex-start', alignItems: 'center', paddingHorizontal: 10, backgroundColor: '#ffffff', height: 90,borderBottomWidth:1,borderColor:"#ccc",overflow:'hidden' },
   songInfo: { flex: 1, marginLeft: 10 },
   songName: { color:'#257180', fontSize: 16, fontWeight: 'bold' },
   songAuthor: { fontSize: 14, color: 'gray' },
-  songActions: { flexDirection: 'row', justifyContent: 'space-between', width: 60 },
+  songActions: { flexDirection: 'row', justifyContent: 'space-between', width: 120 },
   modalOverlay: { flex: 1, justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(0, 0, 0, 0.5)' },
   modalContainer: { width: 300, backgroundColor: '#fff', padding: 20, borderRadius: 8 },
   modalTitle: { fontSize: 20, fontWeight: 'bold', marginBottom: 10 },

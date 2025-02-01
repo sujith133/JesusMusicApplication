@@ -1,6 +1,8 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
 
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application
       android:name=".MainApplication"
@@ -9,6 +11,10 @@
       android:allowBackup="false"
       android:theme="@style/AppTheme"
       android:supportsRtl="true">
+      <service
+    android:name="com.guichaguri.trackplayer.service.MusicService"
+    android:exported="true"
+    android:stopWithTask="false" />
       <activity
         android:name=".MainActivity"
         android:label="@string/app_name"

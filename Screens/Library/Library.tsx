@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { SafeAreaView, StyleSheet, View, Image, Text, TouchableOpacity,FlatList, ScrollView, Modal,TextInput, Dimensions} from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { SafeAreaView, StyleSheet, View, Image, Text, TouchableOpacity,FlatList, ScrollView, Modal,TextInput, Dimensions, Alert, BackHandler} from 'react-native';
 import { songList,podcastList,albumList } from '../Components/DummyDate';
 import SongTile from '../Components/SongTile';
 import AlbumTile from '../Components/AlbumTile';
@@ -9,6 +9,7 @@ export interface Song {
   authorName: string;
   albumId: string;
   songImage: string;
+  songUrl:string;
 }
 
 export interface Album {
@@ -42,6 +43,7 @@ function Library(): React.JSX.Element {
       imageUrl={item.songImage}
       screen='librarymusicplayer'
       stack='library'
+      songUrl={item.songUrl}
     />
   );
 
@@ -97,6 +99,7 @@ function Library(): React.JSX.Element {
   );
   // Tabs array for mapping
   const tabs = ['Songs', 'Albums', 'Podcasts', 'Playlists'];
+
 
   return (
     <SafeAreaView style={styles.mainContainer}>
